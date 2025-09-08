@@ -1,0 +1,252 @@
+.sidebar {
+  position: sticky;
+  top: 6rem;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 2.5rem;
+  height: fit-content;
+  width: 100%;
+  max-width: 420px;
+}
+
+.navigation {
+  width: 100%;
+}
+
+.navTitle {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 0 0 2rem 0;
+  color: black;
+  text-align: center;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 1);
+  font-family: "Charter", serif;
+}
+
+.navList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navItem {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.navItem:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.navLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.2s ease;
+  padding: 0.8rem;
+  border-radius: 7px;
+  border: 1px solid transparent;
+}
+
+.navLink:hover {
+  opacity: 0.7;
+  background-color: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.4);
+}
+
+.navLink:focus {
+  outline: 2px solid black;
+  outline-offset: 2px;
+  opacity: 0.7;
+}
+
+.navLinkCurrent {
+  background-color: rgba(0, 0, 0, 0);
+  border-color: rgba(0, 0, 0, 1);
+  opacity: 1;
+}
+
+.navLinkCurrent:hover {
+  background-color: rgba(0, 0, 0, 0);
+  border-color: rgba(0, 0, 0, 1);
+  opacity: 1;
+}
+
+.navMeta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.8rem;
+}
+
+.navNumber {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: black;
+  opacity: 0.7;
+  font-family: "Charter", serif;
+}
+
+.navLinkCurrent .navNumber {
+  opacity: 0.8;
+  font-weight: 600;
+}
+
+.navtopic {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: black;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.7;
+}
+
+.navLinkCurrent {
+  opacity: 0.9;
+}
+
+.navPostTitle {
+  font-size: 1.15rem;
+  font-weight: 500;
+  line-height: 1.4;
+  margin: 0;
+  color: black;
+  font-family: "Charter", serif;
+}
+
+.navLinkCurrent .navPostTitle {
+  font-weight: 600;
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    max-width: 380px;
+    padding: 2rem;
+    top: 5rem;
+  }
+
+  .navTitle {
+    font-size: 1.3rem;
+    margin-bottom: 1.8rem;
+    padding-bottom: 1.3rem;
+  }
+
+  .navPostTitle {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: static;
+    max-width: none;
+    margin-bottom: 2rem;
+    order: -1;
+    padding: 2rem;
+  }
+
+  .navMeta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+
+  .navTitle {
+    font-size: 1.25rem;
+    margin-bottom: 1.75rem;
+    padding-bottom: 1.25rem;
+  }
+
+  .navPostTitle {
+    font-size: 1.05rem;
+  }
+
+  .navItem {
+    margin-bottom: 1.25rem;
+    padding-bottom: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    padding: 1.5rem;
+  }
+
+  .navTitle {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .navPostTitle {
+    font-size: 1rem;
+  }
+
+  .navLink {
+    padding: 0.7rem;
+  }
+
+  .navNumber,
+  .navtopic {
+    font-size: 0.85rem;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .sidebar {
+    border-color: black;
+    background: white;
+  }
+
+  .navLink:hover,
+  .navLink:focus {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .navLinkCurrent {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-color: black;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navLink {
+    transition: none;
+  }
+}
+
+@media print {
+  .sidebar {
+    position: static;
+    border: 1px solid black;
+    background: white;
+    page-break-inside: avoid;
+  }
+
+  .navLink {
+    border: none;
+    padding: 0.4rem 0;
+  }
+
+  .navLinkCurrent {
+    background: transparent;
+    border: none;
+    font-weight: bold;
+  }
+}
+
+.navLink:focus-visible {
+  outline: 2px solid black;
+  outline-offset: 2px;
+}
+
+.navLink:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.navPostTitle::selection {
+  background-color: black;
+  color: white;
+}

@@ -1,0 +1,280 @@
+.home {
+  background-color: var(--background);
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 2rem;
+  font-family: "Charter", serif;
+}
+
+.contentWrapper {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 6rem;
+  align-items: start;
+  min-height: 60vh;
+}
+
+.mainContent {
+  min-width: 0;
+}
+
+.article {
+  line-height: 1.6;
+}
+
+.abstract,
+.methodology,
+.contributions {
+  margin-bottom: 3.5rem;
+}
+
+.abstract {
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 0 0 1.75rem 0;
+  color: black;
+  position: relative;
+}
+
+.sectionTitle::after {
+  content: "";
+  position: absolute;
+  bottom: -0.5rem;
+  left: 0;
+  width: 3rem;
+  height: 2px;
+  background: black;
+  opacity: 0.4;
+}
+
+.abstractText,
+.contentText {
+  font-size: 1.1rem;
+  color: black;
+  margin: 1.25rem 0;
+  text-align: justify;
+  hyphens: auto;
+}
+
+.abstractText:first-of-type,
+.contentText:first-of-type {
+  margin-top: 0;
+}
+
+.methodList {
+  margin: 1.5rem 0;
+  padding-left: 1.75rem;
+  border-left: 2px solid rgba(0, 0, 0, 0.1);
+  padding-left: 2rem;
+  list-style-type: none;
+}
+
+.methodList li {
+  margin: 0.75rem 0;
+  font-size: 1.1rem;
+  color: black;
+  position: relative;
+}
+
+.methodList li::before {
+  content: "→";
+  position: absolute;
+  left: -1.5rem;
+  color: black;
+  opacity: 0.4;
+  font-weight: bold;
+}
+
+.contributionsList {
+  margin-top: 2rem;
+  display: grid;
+  gap: 2rem;
+}
+
+.contribution {
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.02);
+  border-left: 3px solid rgba(0, 0, 0, 0.1);
+  border-radius: 0 4px 4px 0;
+  transition: all 0.2s ease;
+}
+
+.contribution:hover {
+  background: rgba(0, 0, 0, 0.04);
+  border-left-color: rgba(0, 0, 0, 0.4);
+  transform: translateX(2px);
+}
+
+.contributionTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  color: black;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.contributionTitle::before {
+  content: "▸";
+  color: black;
+  opacity: 0.6;
+  font-size: 0.8em;
+}
+
+.contributionText {
+  font-size: 1rem;
+  color: black;
+  margin: 0;
+  line-height: 1.7;
+  opacity: 0.9;
+}
+
+@media (max-width: 1024px) {
+  .contentWrapper {
+    grid-template-columns: 1fr 280px;
+    gap: 3rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .headerContainer {
+    padding: 0 1rem;
+  }
+
+  .headerContent {
+    gap: 2rem;
+  }
+
+  .mainTitle {
+    font-size: 2rem;
+  }
+
+  .mainSubtitle {
+    font-size: 0.9rem;
+  }
+
+  .container {
+    padding: 1.5rem 1rem;
+  }
+
+  .contentWrapper {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .abstractText,
+  .contentText {
+    font-size: 1rem;
+    text-align: left;
+    hyphens: none;
+  }
+
+  .sectionTitle {
+    font-size: 1.375rem;
+  }
+
+  .sectionTitle::after {
+    width: 2.5rem;
+  }
+
+  .methodList {
+    padding-left: 1.5rem;
+  }
+
+  .methodList li {
+    font-size: 1rem;
+  }
+
+  .methodList li::before {
+    left: -1.25rem;
+  }
+
+  .abstract,
+  .methodology,
+  .contributions {
+    margin-bottom: 2.5rem;
+  }
+
+  .contribution {
+    padding: 1.25rem;
+  }
+
+  .contributionsList {
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 1.5rem 0.75rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.25rem;
+  }
+
+  .sectionTitle::after {
+    width: 2rem;
+  }
+
+  .contributionsList {
+    margin-top: 1rem;
+    gap: 1.25rem;
+  }
+
+  .contribution {
+    padding: 1rem;
+  }
+
+  .methodList {
+    padding-left: 1.25rem;
+  }
+
+  .methodList li::before {
+    left: -1rem;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .contribution {
+    border-left-color: black;
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  .contribution:hover {
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  .sectionTitle::after {
+    background: black;
+    opacity: 0.6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contribution {
+    transition: none;
+  }
+
+  .contribution:hover {
+    transform: none;
+  }
+}
+
+@media print {
+  .contentWrapper {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
