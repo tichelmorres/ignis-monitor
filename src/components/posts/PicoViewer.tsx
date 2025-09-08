@@ -1,338 +1,405 @@
 "use client";
 
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  ReactNode,
+import {
+	createContext,
+	ReactNode,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
 } from "react";
 import styles from "./picoViewer.module.css";
 
 export type PicoClass = "Fire" | "Nofire" | string;
 
 export interface PicoData {
-  timestamp: number;
-  class?: PicoClass;
-  confidence?: number;
-  fire_score?: number;
-  nofire_score?: number;
-  [key: string]: any;
+	timestamp: number;
+	class?: PicoClass;
+	confidence?: number;
+	fire_score?: number;
+	nofire_score?: number;
+	[key: string]: unknown;
 }
 
 interface PicoContextType {
-  latest: PicoData | null;
-  history: PicoData[];
-  loading: boolean;
-  error: string | null;
-  refreshMs: number;
-  showHistory: boolean;
-  refetch: () => Promise<void>;
+	latest: PicoData | null;
+	history: PicoData[];
+	loading: boolean;
+	error: string | null;
+	refreshMs: number;
+	showHistory: boolean;
+	refetch: () => Promise<void>;
 }
 
 const PicoContext = createContext<PicoContextType | undefined>(undefined);
 
 export const usePico = () => {
-  const ctx = useContext(PicoContext);
-  if (!ctx) throw new Error("usePico must be used inside a <PicoViewer />");
-  return ctx;
+	const ctx = useContext(PicoContext);
+	if (!ctx) throw new Error("usePico must be used inside a <PicoViewer />");
+	return ctx;
 };
 
 interface PicoViewerProps {
-  refreshMs?: number; // milliseconds; 0 or negative = no auto-refresh
-  showHistory?: boolean;
-  className?: string;
-  baseUrl?: string; // optional base url (e.g. http://localhost:3000)
-  children?: ReactNode;
+	refreshMs?: number; // milliseconds; 0 or negative = no auto-refresh
+	showHistory?: boolean;
+	className?: string;
+	baseUrl?: string; // optional base url (e.g. http://localhost:3000)
+	children?: ReactNode;
 }
 
+const deepEqual = (a: unknown, b: unknown): boolean => {
+	if (a === b) return true;
+	if (a == null || b == null) return a === b;
+
+	if (Array.isArray(a) && Array.isArray(b)) {
+		if (a.length !== b.length) return false;
+		for (let i = 0; i < a.length; i++) {
+			if (!deepEqual(a[i], b[i])) return false;
+		}
+		return true;
+	}
+
+	if (typeof a === "object" && typeof b === "object") {
+		const aRec = a as Record<string, unknown>;
+		const bRec = b as Record<string, unknown>;
+		const aKeys = Object.keys(aRec);
+		const bKeys = Object.keys(bRec);
+		if (aKeys.length !== bKeys.length) return false;
+		for (const k of aKeys) {
+			if (!Object.prototype.hasOwnProperty.call(bRec, k)) return false;
+			if (!deepEqual(aRec[k], bRec[k])) return false;
+		}
+		return true;
+	}
+
+	return false;
+};
+
+const isPicoData = (x: unknown): x is PicoData =>
+	typeof x === "object" &&
+	x !== null &&
+	typeof (x as Record<string, unknown>).timestamp === "number";
+
+const isArrayOfPicoData = (x: unknown): x is PicoData[] =>
+	Array.isArray(x) && x.every(isPicoData);
+
+const getErrorMessage = (err: unknown): string => {
+	if (err instanceof Error) return err.message;
+	try {
+		return String(err);
+	} catch {
+		return "Unknown error";
+	}
+};
+
 export const PicoViewer = ({
-  refreshMs = 12 * 1000,
-  showHistory = false,
-  className = "",
-  baseUrl = "",
-  children,
+	refreshMs = 12 * 1000,
+	showHistory = false,
+	className = "",
+	baseUrl = "",
+	children,
 }: PicoViewerProps) => {
-  const [latest, setLatest] = useState<PicoData | null>(null);
-  const [history, setHistory] = useState<PicoData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+	const [latest, setLatest] = useState<PicoData | null>(null);
+	const [history, setHistory] = useState<PicoData[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 
-  const mountedRef = useRef(true);
-  const abortRef = useRef<AbortController | null>(null);
+	const mountedRef = useRef(true);
+	const abortRef = useRef<AbortController | null>(null);
+	const latestRef = useRef<PicoData | null>(null);
+	const historyRef = useRef<PicoData[]>([]);
 
-  const fetchData = useCallback(async (): Promise<void> => {
-    if (abortRef.current) abortRef.current.abort();
-    const ac = new AbortController();
-    abortRef.current = ac;
+	useEffect(() => {
+		latestRef.current = latest;
+	}, [latest]);
+	useEffect(() => {
+		historyRef.current = history;
+	}, [history]);
 
-    setLoading(true);
+	const fetchData = useCallback(async (): Promise<void> => {
+		if (abortRef.current) abortRef.current.abort();
+		const ac = new AbortController();
+		abortRef.current = ac;
 
-    try {
-      const trimmedBase = baseUrl ? baseUrl.replace(/\/$/, "") : "";
-      const endpoint = showHistory ? "/pico_data/history" : "/pico_data/latest";
-      const url = (trimmedBase || "") + endpoint;
+		const initialLoad =
+			!latestRef.current &&
+			(!historyRef.current || historyRef.current.length === 0);
+		if (initialLoad) setLoading(true);
 
-      const res = await fetch(url, { signal: ac.signal });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
+		try {
+			const trimmedBase = baseUrl ? baseUrl.replace(/\/$/, "") : "";
+			const endpoint = showHistory ? "/pico_data/history" : "/pico_data/latest";
+			const url = (trimmedBase || "") + endpoint;
 
-      if (!mountedRef.current) return;
+			const res = await fetch(url, { signal: ac.signal });
+			if (!res.ok) throw new Error(`HTTP ${res.status}`);
+			const json: unknown = await res.json();
 
-      if (showHistory) {
-        const arr = Array.isArray(json) ? json : [];
-        setHistory(arr);
-        setLatest(arr.length > 0 ? arr[arr.length - 1] : null);
-      } else {
-        setLatest(json ?? null);
-      }
+			if (!mountedRef.current) return;
 
-      setError(null);
-    } catch (err: any) {
-      if (err?.name === "AbortError") return;
-      setError(err?.message ?? String(err));
-    } finally {
-      if (mountedRef.current) setLoading(false);
-    }
-  }, [showHistory, baseUrl]);
+			if (showHistory) {
+				const arr: PicoData[] = isArrayOfPicoData(json) ? json : [];
+				if (!deepEqual(arr, historyRef.current)) {
+					setHistory(arr);
+					setLatest(arr.length > 0 ? arr[arr.length - 1] : null);
+				}
+			} else {
+				const incoming: PicoData | null = isPicoData(json) ? json : null;
+				if (!deepEqual(incoming, latestRef.current)) {
+					setLatest(incoming);
+				}
+			}
 
-  useEffect(() => {
-    mountedRef.current = true;
-    fetchData();
+			setError(null);
+		} catch (err: unknown) {
+			if (err instanceof DOMException && err.name === "AbortError") return;
+			if (err instanceof Error && err.name === "AbortError") return;
+			setError(getErrorMessage(err));
+		} finally {
+			if (mountedRef.current) setLoading(false);
+		}
+	}, [showHistory, baseUrl]);
 
-    let interval: ReturnType<typeof setInterval> | undefined;
-    if (refreshMs > 0) {
-      interval = setInterval(() => {
-        fetchData();
-      }, refreshMs);
-    }
+	useEffect(() => {
+		mountedRef.current = true;
+		fetchData();
 
-    return () => {
-      mountedRef.current = false;
-      if (abortRef.current) abortRef.current.abort();
-      if (interval) clearInterval(interval);
-    };
-  }, [fetchData, refreshMs]);
+		let interval: ReturnType<typeof setInterval> | undefined;
+		if (refreshMs > 0) {
+			interval = setInterval(() => {
+				fetchData();
+			}, refreshMs);
+		}
 
-  const ctx = useMemo(
-    () => ({
-      latest,
-      history,
-      loading,
-      error,
-      refreshMs,
-      showHistory,
-      refetch: fetchData,
-    }),
-    [latest, history, loading, error, refreshMs, showHistory, fetchData]
-  );
+		return () => {
+			mountedRef.current = false;
+			if (abortRef.current) abortRef.current.abort();
+			if (interval) clearInterval(interval);
+		};
+	}, [fetchData, refreshMs]);
 
-  return (
-    <PicoContext.Provider value={ctx}>
-      <div className={`${styles.picoContainer} ${className}`.trim()}>
-        {children}
-      </div>
-    </PicoContext.Provider>
-  );
+	const ctx = useMemo(
+		() => ({
+			latest,
+			history,
+			loading,
+			error,
+			refreshMs,
+			showHistory,
+			refetch: fetchData,
+		}),
+		[latest, history, loading, error, refreshMs, showHistory, fetchData],
+	);
+
+	return (
+		<PicoContext.Provider value={ctx}>
+			<div className={`${styles.picoContainer} ${className}`.trim()}>
+				{children}
+			</div>
+		</PicoContext.Provider>
+	);
 };
 
 export const Header = ({ children }: { children?: ReactNode }) => (
-  <div className={styles.picoTitle}>{children}</div>
+	<div className={styles.picoTitle}>{children}</div>
 );
 
 export const ViewerDashboard = ({
-  children,
-  omitFallback = false,
+	children,
+	omitFallback = false,
 }: {
-  children?: ReactNode;
-  omitFallback?: boolean; // if true, dashboard will not render loading/error fallbacks
+	children?: ReactNode;
+	omitFallback?: boolean;
 }) => {
-  const { loading, error } = usePico();
-  if (!omitFallback) {
-    if (loading)
-      return (
-        <div className={styles.picoLoading}>
-          Carregando detecções de incêndio…
-        </div>
-      );
-    if (error) return <div className={styles.picoError}>Erro: {error}</div>;
-  }
-  return <div className={styles.picoLatest}>{children}</div>;
+	const { loading, error, latest, history } = usePico();
+	const hasData = !!latest || (history && history.length > 0);
+
+	if (!omitFallback) {
+		if (loading && !hasData)
+			return (
+				<div className={styles.picoLoading}>
+					Carregando detecções de incêndio…
+				</div>
+			);
+		if (error && !hasData)
+			return <div className={styles.picoError}>Erro: {error}</div>;
+	}
+	return <div className={styles.picoLatest}>{children}</div>;
 };
 
 export const DashboardHeader = ({ children }: { children?: ReactNode }) => (
-  <h4 className={styles.picoSectionHeader}>{children}</h4>
+	<h4 className={styles.picoSectionHeader}>{children}</h4>
 );
 
 const getDetectionStatusClass = (
-  detectedClass?: string,
-  fireScore?: number,
-  confidence?: number
-) => {
-  if (detectedClass === "Fire") {
-    if (
-      typeof fireScore === "number" &&
-      typeof confidence === "number" &&
-      fireScore >= 60 &&
-      confidence >= 60
-    )
-      return styles.fireDetected;
-    else return styles.noFireDetected;
-  } else if (detectedClass === "Nofire") return styles.noFireDetected;
-  return ""; // edge case
+	detectedClass?: PicoClass,
+	fireScore?: number,
+	confidence?: number,
+): string => {
+	if (detectedClass === "Fire") {
+		if (
+			typeof fireScore === "number" &&
+			typeof confidence === "number" &&
+			fireScore >= 60 &&
+			confidence >= 60
+		)
+			return styles.fireDetected;
+		else return styles.noFireDetected;
+	} else if (detectedClass === "Nofire") return styles.noFireDetected;
+	return "";
 };
 
 export const DetectionResult = ({
-  ifFire = "FOGO!!!",
-  ifNoFire = "Sem fogo",
-  unknown = "—",
-  className = "",
+	ifFire = "FOGO!!!",
+	ifNoFire = "Sem fogo",
+	unknown = "—",
+	className = "",
 }: {
-  ifFire?: ReactNode;
-  ifNoFire?: ReactNode;
-  unknown?: ReactNode;
-  className?: string;
+	ifFire?: ReactNode;
+	ifNoFire?: ReactNode;
+	unknown?: ReactNode;
+	className?: string;
 }) => {
-  const { latest } = usePico();
-  if (!latest) return <>{unknown}</>;
-  if (latest.class === "Fire")
-    return (
-      <>
-        <span
-          className={`${className} ${getDetectionStatusClass(
-            latest.class,
-            latest.fire_score,
-            latest.confidence
-          )}`.trim()}
-        >
-          {ifFire}
-        </span>
-      </>
-    );
-  if (latest.class === "Nofire")
-    return (
-      <>
-        <span
-          className={`${className} ${getDetectionStatusClass(
-            latest.class,
-            latest.fire_score,
-            latest.confidence
-          )}`.trim()}
-        >
-          {ifNoFire}
-        </span>
-      </>
-    );
-  return <>{unknown}</>;
+	const { latest } = usePico();
+	if (!latest) return <>{unknown}</>;
+	if (latest.class === "Fire")
+		return (
+			<>
+				<span
+					className={`${className} ${getDetectionStatusClass(
+						latest.class,
+						latest.fire_score,
+						latest.confidence,
+					)}`.trim()}
+				>
+					{ifFire}
+				</span>
+			</>
+		);
+	if (latest.class === "Nofire")
+		return (
+			<>
+				<span
+					className={`${className} ${getDetectionStatusClass(
+						latest.class,
+						latest.fire_score,
+						latest.confidence,
+					)}`.trim()}
+				>
+					{ifNoFire}
+				</span>
+			</>
+		);
+	return <>{unknown}</>;
 };
 
 export const DetectionConfidence = ({
-  fallback = "—",
+	fallback = "—",
 }: {
-  fallback?: ReactNode;
+	fallback?: ReactNode;
 }) => {
-  const { latest } = usePico();
-  if (!latest?.confidence && latest?.confidence !== 0) return <>{fallback}</>;
-  return <>{`${(latest!.confidence! * 100).toFixed(1)}%`}</>;
+	const { latest } = usePico();
+	if (typeof latest?.confidence !== "number") return <>{fallback}</>;
+	return <>{`${(latest!.confidence! * 100).toFixed(1)}%`}</>;
 };
 
 export const DetectionFireScore = ({
-  fallback = "—",
+	fallback = "—",
 }: {
-  fallback?: ReactNode;
+	fallback?: ReactNode;
 }) => {
-  const { latest } = usePico();
-  if (typeof latest?.fire_score !== "number") return <>{fallback}</>;
-  return <>{latest!.fire_score!.toFixed(3)}</>;
+	const { latest } = usePico();
+	if (typeof latest?.fire_score !== "number") return <>{fallback}</>;
+	return <>{latest!.fire_score!.toFixed(3)}</>;
 };
 
 export const DetectionNoFireScore = ({
-  fallback = "—",
+	fallback = "—",
 }: {
-  fallback?: ReactNode;
+	fallback?: ReactNode;
 }) => {
-  const { latest } = usePico();
-  if (typeof latest?.nofire_score !== "number") return <>{fallback}</>;
-  return <>{latest!.nofire_score!.toFixed(3)}</>;
+	const { latest } = usePico();
+	if (typeof latest?.nofire_score !== "number") return <>{fallback}</>;
+	return <>{latest!.nofire_score!.toFixed(3)}</>;
 };
 
 export const DetectionTimestamp = ({
-  localeOptions,
-  fallback = "—",
+	localeOptions,
+	fallback = "—",
 }: {
-  localeOptions?: Intl.DateTimeFormatOptions;
-  fallback?: ReactNode;
+	localeOptions?: Intl.DateTimeFormatOptions;
+	fallback?: ReactNode;
 }) => {
-  const { latest } = usePico();
-  if (!latest) return <>{fallback}</>;
-  return (
-    <>{new Date(latest.timestamp).toLocaleString(undefined, localeOptions)}</>
-  );
+	const { latest } = usePico();
+	if (!latest) return <>{fallback}</>;
+	return (
+		<>{new Date(latest.timestamp).toLocaleString(undefined, localeOptions)}</>
+	);
 };
 
 export const HistoryTable = () => {
-  const { history } = usePico();
+	const { loading, history } = usePico();
 
-  if (!history || history.length === 0)
-    return <div className={styles.picoHistoryEmpty}>Nenhuma detecção</div>;
+	if ((!history || history.length === 0) && !loading)
+		return <div className={styles.picoHistoryEmpty}>Nenhuma detecção</div>;
+	else if (loading) return <></>;
 
-  const rows = [...history].sort((a, b) => b.timestamp - a.timestamp);
+	const rows = [...history].sort((a, b) => b.timestamp - a.timestamp);
 
-  return (
-    <div className={styles.picoHistory}>
-      <h4>Histórico de Detecções</h4>
-      <table className={styles.picoTable}>
-        <thead>
-          <tr>
-            <th>Horário</th>
-            <th>Classe</th>
-            <th>Confiança</th>
-            <th>Score (fire)</th>
-            <th>Score (nofire)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((entry, i) => (
-            <tr
-              key={entry.timestamp ?? i}
-              className={getDetectionStatusClass(
-                entry.class,
-                entry.fire_score,
-                entry.confidence
-              )}
-            >
-              <td>{new Date(entry.timestamp).toLocaleTimeString()}</td>
-              <td>
-                {entry.class === "Fire"
-                  ? "fire"
-                  : entry.class === "Nofire"
-                  ? "nofire"
-                  : "—"}
-              </td>
-              <td>
-                {typeof entry.confidence === "number"
-                  ? `${(entry.confidence * 100).toFixed(1)}%`
-                  : "—"}
-              </td>
-              <td>
-                {typeof entry.fire_score === "number"
-                  ? entry.fire_score.toFixed(3)
-                  : "—"}
-              </td>
-              <td>
-                {typeof entry.nofire_score === "number"
-                  ? entry.nofire_score.toFixed(3)
-                  : "—"}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+	return (
+		<div className={styles.picoHistory}>
+			<h4>Histórico de Detecções</h4>
+			<table className={styles.picoTable}>
+				<thead>
+					<tr>
+						<th>Horário</th>
+						<th>Classe</th>
+						<th>Confiança</th>
+						<th>Score (fire)</th>
+						<th>Score (nofire)</th>
+					</tr>
+				</thead>
+				<tbody>
+					{rows.map((entry, i) => (
+						<tr
+							key={entry.timestamp ?? i}
+							className={getDetectionStatusClass(
+								entry.class,
+								entry.fire_score,
+								entry.confidence,
+							)}
+						>
+							<td>{new Date(entry.timestamp).toLocaleTimeString()}</td>
+							<td>
+								{entry.class === "Fire"
+									? "fire"
+									: entry.class === "Nofire"
+										? "nofire"
+										: "—"}
+							</td>
+							<td>
+								{typeof entry.confidence === "number"
+									? `${(entry.confidence * 100).toFixed(1)}%`
+									: "—"}
+							</td>
+							<td>
+								{typeof entry.fire_score === "number"
+									? entry.fire_score.toFixed(3)
+									: "—"}
+							</td>
+							<td>
+								{typeof entry.nofire_score === "number"
+									? entry.nofire_score.toFixed(3)
+									: "—"}
+							</td>
+						</tr>
+					))}
+				</tbody>
+			</table>
+		</div>
+	);
 };
 
 export default PicoViewer;

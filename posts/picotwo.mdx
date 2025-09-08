@@ -1,0 +1,25 @@
+---
+topic: "Teste do Sevidor"
+title: "Resultados da Comunicação"
+---
+
+<PicoViewer showHistory={true} baseUrl="http://localhost:3000" refreshMs={12000}>
+  <Header>Pico 2W — Painel</Header>
+
+  <ViewerDashboard>
+    <DashboardHeader>Última Detecção</DashboardHeader>
+
+    <strong>Classe Detectada: </strong> <DetectionResult ifFire="FOGO!!!" ifNoFire="Sem fogo" />
+    <br></br>
+    <strong>Confiança: </strong> <DetectionConfidence />
+    <br></br>
+    <strong>Pontuação Fogo: </strong> <DetectionFireScore />
+    <br></br>
+    <strong>Pontuação Sem Fogo: </strong> <DetectionNoFireScore />
+    <br></br>
+    <strong>Marcação: </strong> <DetectionTimestamp />
+
+  </ViewerDashboard>
+
+  <HistoryTable />
+</PicoViewer>
