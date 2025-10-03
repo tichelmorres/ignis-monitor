@@ -14,80 +14,80 @@ const postsDirectory = path.join(process.cwd(), "posts");
 let fileCache: string[] | null = null;
 
 function getPostFiles(): string[] {
-  if (!fileCache) {
-    fileCache = fs
-      .readdirSync(postsDirectory)
-      .filter((file) => file.endsWith(".md") || file.endsWith(".mdx"));
-  }
-  return fileCache;
+	if (!fileCache) {
+		fileCache = fs
+			.readdirSync(postsDirectory)
+			.filter((file) => file.endsWith(".md") || file.endsWith(".mdx"));
+	}
+	return fileCache;
 }
 
 function findPostFile(urlSlug: string): string | null {
-  const files = getPostFiles();
+	const files = getPostFiles();
 
-  for (const filename of files) {
-    const fileSlug = slugify(filename.replace(/\.(mdx|md)$/, ""));
-    if (fileSlug === urlSlug) {
-      return filename;
-    }
-  }
+	for (const filename of files) {
+		const fileSlug = slugify(filename.replace(/\.(mdx|md)$/, ""));
+		if (fileSlug === urlSlug) {
+			return filename;
+		}
+	}
 
-  return null;
+	return null;
 }
 
 export async function getPostData(urlSlug: string): Promise<Post> {
-  const filename = findPostFile(urlSlug);
+	const filename = findPostFile(urlSlug);
 
-  if (!filename) {
-    notFound();
-  }
+	if (!filename) {
+		notFound();
+	}
 
-  try {
-    const fullPath = path.join(postsDirectory, filename);
-    const fileContents = fs.readFileSync(fullPath, "utf8");
-    const { data: frontmatter, content: rawContent } = matter(fileContents);
+	try {
+		const fullPath = path.join(postsDirectory, filename);
+		const fileContents = fs.readFileSync(fullPath, "utf8");
+		const { data: frontmatter, content: rawContent } = matter(fileContents);
 
-    const { content } = await compileMDX({
-      source: rawContent,
-      components: MDXComponents,
-      options: {
-        parseFrontmatter: false,
-        mdxOptions: {
-          remarkPlugins: [remarkGfm, remarkBreaks],
-          format: filename.endsWith(".mdx") ? "mdx" : "md",
-        },
-      },
-    });
+		const { content } = await compileMDX({
+			source: rawContent,
+			components: MDXComponents,
+			options: {
+				parseFrontmatter: false,
+				mdxOptions: {
+					remarkPlugins: [remarkGfm, remarkBreaks],
+					format: filename.endsWith(".mdx") ? "mdx" : "md",
+				},
+			},
+		});
 
-    const metadata: PostMetadata = {
-      title: frontmatter.title,
-      slug: urlSlug,
-      topic: frontmatter.topic,
-    };
+		const metadata: PostMetadata = {
+			title: frontmatter.title,
+			slug: urlSlug,
+			topic: frontmatter.topic,
+		};
 
-    return {
-      content,
-      ...metadata,
-    };
-  } catch (error) {
-    console.error(`Error processing post "${urlSlug}":`, error);
-    notFound();
-  }
+		return {
+			content,
+			...metadata,
+		};
+	} catch (error) {
+		console.error(`Error processing post "${urlSlug}":`, error);
+		notFound();
+	}
 }
 
 export function getPostsMetadata(): PostMetadata[] {
-  const files = getPostFiles();
+	const files = getPostFiles();
 
-  return files.map((filename) => {
-    const urlSlug = slugify(filename.replace(/\.(mdx|md)$/, ""));
-    const fullPath = path.join(postsDirectory, filename);
-    const fileContents = fs.readFileSync(fullPath, "utf8");
-    const { data: frontmatter } = matter(fileContents);
+	return files.map((filename) => {
+		const urlSlug = slugify(filename.replace(/\.(mdx|md)$/, ""));
+		const fullPath = path.join(postsDirectory, filename);
+		const fileContents = fs.readFileSync(fullPath, "utf8");
+		const { data: frontmatter } = matter(fileContents);
 
-    return {
-      title: frontmatter.title,
-      slug: urlSlug,
-      topic: frontmatter.topic,
-    };
-  });
+		return {
+			title: frontmatter.title,
+			slug: urlSlug,
+			topic: frontmatter.topic,
+		};
+	});
 }

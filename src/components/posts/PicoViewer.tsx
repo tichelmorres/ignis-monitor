@@ -37,7 +37,7 @@ const PicoContext = createContext<PicoContextType | undefined>(undefined);
 
 export const usePico = () => {
 	const ctx = useContext(PicoContext);
-	if (!ctx) throw new Error("usePico must be used inside a <PicoViewer />");
+	if (!ctx) throw new Error("usePico must be inside a <PicoViewer />");
 	return ctx;
 };
 
@@ -45,7 +45,7 @@ interface PicoViewerProps {
 	refreshMs?: number; // milliseconds; 0 or negative = no auto-refresh
 	showHistory?: boolean;
 	className?: string;
-	baseUrl?: string; // optional base url (e.g. http://localhost:3000)
+	baseUrl?: string; // optional base url to fetch (e.g. http://localhost:3001)
 	children?: ReactNode;
 }
 
@@ -239,16 +239,10 @@ const getDetectionStatusClass = (
 	confidence?: number,
 ): string => {
 	if (detectedClass === "Fire") {
-		if (
-			typeof fireScore === "number" &&
-			typeof confidence === "number" &&
-			fireScore >= 60 &&
-			confidence >= 60
-		)
+		if (typeof fireScore === "number" && typeof confidence === "number")
 			return styles.fireDetected;
-		else return styles.noFireDetected;
-	} else if (detectedClass === "Nofire") return styles.noFireDetected;
-	return "";
+	}
+	return styles.noFireDetected; // for all other cases, no fire was properly detected
 };
 
 export const DetectionResult = ({
