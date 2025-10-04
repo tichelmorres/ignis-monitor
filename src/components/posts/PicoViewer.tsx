@@ -12,6 +12,8 @@ import {
 } from "react";
 import styles from "./picoViewer.module.css";
 
+import useSound from "use-sound";
+
 export type PicoClass = "Fire" | "Nofire" | string;
 
 export interface PicoData {
@@ -94,6 +96,14 @@ const getErrorMessage = (err: unknown): string => {
 	}
 };
 
+function isPromise<T = unknown>(v: unknown): v is Promise<T> {
+	return (
+		typeof v === "object" &&
+		v !== null &&
+		typeof (v as Promise<T>).then === "function"
+	);
+}
+
 export const PicoViewer = ({
 	refreshMs = 12 * 1000,
 	showHistory = false,
@@ -117,6 +127,9 @@ export const PicoViewer = ({
 	useEffect(() => {
 		historyRef.current = history;
 	}, [history]);
+
+	// use-sound play function (alert.wav should be placed in /public)
+	const [play] = useSound("/alert.wav", { interrupt: true });
 
 	const fetchData = useCallback(async (): Promise<void> => {
 		if (abortRef.current) abortRef.current.abort();
@@ -144,11 +157,27 @@ export const PicoViewer = ({
 				if (!deepEqual(arr, historyRef.current)) {
 					setHistory(arr);
 					setLatest(arr.length > 0 ? arr[arr.length - 1] : null);
+
+					// play alert whenever new data is fetched
+					try {
+						const result = play();
+						if (isPromise(result)) result.catch(() => {});
+					} catch {
+						// ignore play failures
+					}
 				}
 			} else {
 				const incoming: PicoData | null = isPicoData(json) ? json : null;
 				if (!deepEqual(incoming, latestRef.current)) {
 					setLatest(incoming);
+
+					// play alert whenever new data is fetched
+					try {
+						const result = play();
+						if (isPromise(result)) result.catch(() => {});
+					} catch {
+						// ignore play failures
+					}
 				}
 			}
 
@@ -160,7 +189,7 @@ export const PicoViewer = ({
 		} finally {
 			if (mountedRef.current) setLoading(false);
 		}
-	}, [showHistory, baseUrl]);
+	}, [showHistory, baseUrl, play]);
 
 	useEffect(() => {
 		mountedRef.current = true;
@@ -385,7 +414,7 @@ export const HistoryTable = () => {
 							</td>
 							<td>
 								{typeof entry.nofire_score === "number"
-									? entry.nofire_score.toFixed(3)
+									? entry.nofire_score!.toFixed(3)
 									: "—"}
 							</td>
 						</tr>
