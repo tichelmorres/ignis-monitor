@@ -10,9 +10,8 @@ import {
 	useRef,
 	useState,
 } from "react";
-import styles from "./picoViewer.module.css";
-
 import useSound from "use-sound";
+import styles from "./picoViewer.module.css";
 
 export type PicoClass = "Fire" | "Nofire" | string;
 
@@ -96,11 +95,11 @@ const getErrorMessage = (err: unknown): string => {
 	}
 };
 
-function isPromise<T = unknown>(v: unknown): v is Promise<T> {
+function isMaybePromise<T = unknown>(v: unknown): v is Promise<T> {
 	return (
 		typeof v === "object" &&
 		v !== null &&
-		typeof (v as Promise<T>).then === "function"
+		typeof (v as { then?: unknown }).then === "function"
 	);
 }
 
@@ -128,8 +127,98 @@ export const PicoViewer = ({
 		historyRef.current = history;
 	}, [history]);
 
-	// use-sound play function (alert.wav should be placed in /public)
-	const [play] = useSound("/alert.wav", { interrupt: true });
+	const [play, { sound }] = useSound("/alert.wav", { interrupt: true });
+
+	const repeatRemainingRef = useRef<number>(0);
+	const howlHandlerRef = useRef<(() => void) | null>(null);
+
+	const safePlay = useCallback(() => {
+		try {
+			const maybe = play();
+			if (isMaybePromise(maybe)) {
+				maybe.catch((err) => {
+					if (process.env.NODE_ENV !== "production") {
+						console.debug(
+							"Audio playback rejected (likely autoplay policy):",
+							err,
+						);
+					}
+				});
+			}
+		} catch (err) {
+			if (process.env.NODE_ENV !== "production") {
+				console.debug("Audio play() threw synchronously:", err);
+			}
+		}
+	}, [play]);
+
+	useEffect(() => {
+		return () => {
+			if (sound && howlHandlerRef.current && typeof sound.off === "function") {
+				sound.off("end", howlHandlerRef.current);
+				howlHandlerRef.current = null;
+			}
+		};
+		// intentionally not listing `sound` so this runs on unmount only
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	const playAlert = useCallback(
+		(times = 5) => {
+			if (times < 1) return;
+
+			if (sound && howlHandlerRef.current && typeof sound.off === "function") {
+				sound.off("end", howlHandlerRef.current);
+				howlHandlerRef.current = null;
+			}
+
+			repeatRemainingRef.current = times;
+
+			const onEnd = () => {
+				repeatRemainingRef.current -= 1;
+				if (repeatRemainingRef.current > 0) {
+					safePlay();
+				} else {
+					if (sound && typeof sound.off === "function") {
+						sound.off("end", onEnd);
+					}
+					howlHandlerRef.current = null;
+				}
+			};
+
+			if (sound && typeof sound.on === "function") {
+				howlHandlerRef.current = onEnd;
+				sound.on("end", onEnd);
+				safePlay();
+				return;
+			}
+
+			safePlay();
+
+			let attempts = 0;
+			const maxAttempts = 30;
+			const pollIntervalMs = 50;
+			const poll = () => {
+				attempts++;
+				if (sound && typeof sound.on === "function") {
+					howlHandlerRef.current = onEnd;
+					sound.on("end", onEnd);
+					return;
+				}
+				if (attempts <= maxAttempts) {
+					setTimeout(poll, pollIntervalMs);
+				} else {
+					if (process.env.NODE_ENV !== "production") {
+						console.debug(
+							"Failed to attach Howl 'end' handler within timeout.",
+						);
+					}
+				}
+			};
+			setTimeout(poll, pollIntervalMs);
+		},
+		[safePlay, sound],
+	);
 
 	const fetchData = useCallback(async (): Promise<void> => {
 		if (abortRef.current) abortRef.current.abort();
@@ -158,26 +247,16 @@ export const PicoViewer = ({
 					setHistory(arr);
 					setLatest(arr.length > 0 ? arr[arr.length - 1] : null);
 
-					// play alert whenever new data is fetched
-					try {
-						const result = play();
-						if (isPromise(result)) result.catch(() => {});
-					} catch {
-						// ignore play failures
-					}
+					// play alert whenever new data is fetched (5 times)
+					playAlert(5);
 				}
 			} else {
 				const incoming: PicoData | null = isPicoData(json) ? json : null;
 				if (!deepEqual(incoming, latestRef.current)) {
 					setLatest(incoming);
 
-					// play alert whenever new data is fetched
-					try {
-						const result = play();
-						if (isPromise(result)) result.catch(() => {});
-					} catch {
-						// ignore play failures
-					}
+					// play alert whenever new data is fetched (5 times)
+					playAlert(5);
 				}
 			}
 
@@ -189,7 +268,7 @@ export const PicoViewer = ({
 		} finally {
 			if (mountedRef.current) setLoading(false);
 		}
-	}, [showHistory, baseUrl, play]);
+	}, [showHistory, baseUrl, playAlert]);
 
 	useEffect(() => {
 		mountedRef.current = true;
@@ -387,7 +466,8 @@ export const HistoryTable = () => {
 				<tbody>
 					{rows.map((entry, i) => (
 						<tr
-							key={entry.timestamp ?? i}
+							// timestamp + index ensures uniqueness even when timestamps collide (parallel reqs)
+							key={`${entry.timestamp ?? "no-ts"}-${i}`}
 							className={getDetectionStatusClass(
 								entry.class,
 								entry.fire_score,
