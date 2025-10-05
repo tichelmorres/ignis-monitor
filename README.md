@@ -1,112 +1,81 @@
-# I.G.N.I.S. — Monitoring web application
+# I.G.N.I.S. — Aplicação web de monitoramento
 
 > **See the fire before it spreads...**
-> This repository is the monitoring frontend for **IGNIS** — an edge AI fire-detection system that forwards Pico (Raspberry Pico W / Pico 2W) inference results to a small JSON edge server. The monitoring app provides a compact, real-time dashboard, history view, and components you can drop into your own Next.js site to observe detections and get audible alerts.
+> Este repositório é o frontend de monitoramento do **IGNIS** — um sistema de detecção de incêndio com IA que encaminha resultados de inferência de um microcontrolador Pico (Raspberry Pico W / Pico 2W) para um pequeno servidor JSON. A aplicação de monitoramento fornece um painel compacto em tempo real, visão de histórico e componentes que você pode incorporar ao seu próprio site Next.js para observar detecções e receber alertas.
 
 ---
 
-## What this repo contains
+## O que este repositório contém
 
-- A Next.js + React + TypeScript UI that consumes the IGNIS JSON edge server.
-- Reusable components (`PicoViewer` and children) that:
-  - fetch and expose latest / historical Pico data,
-  - play an alert sound when new detections arrive,
-  - display detection class, confidence, and scores,
+- Uma UI Next.js + React + TypeScript que consome o servidor JSON de borda do IGNIS.
 
-- MDX-based post system for research / documentation pages.
+- Componentes reutilizáveis (`PicoViewer` e subsequentes) que:
+  - buscam e expõem os dados mais recentes / histórico do Pico,
+  - reproduzem um som de alerta quando novas detecções chegam,
+  - exibem a classe da detecção, confiança e pontuações.
+
+- Sistema de posts baseado em MDX para documentação e pesquisa.
 
 ---
 
-## Quick start (local)
+## Início rápido (local)
 
-> You can use **bun**, **npm**, or **yarn** depending on your environment.
+> Você pode usar **bun**, **npm** ou **yarn** dependendo do seu ambiente.
 
-1. Install dependencies
+1. Instale as dependências
 
 ```bash
-# with bun
 bun install
-
-# or npm
+# ou
 npm install
-
-# or yarn
+# ou
 yarn
 ```
 
-2. Run dev server
+2. Rode o servidor de desenvolvimento
 
 ```bash
-# typical commands
 bun run dev
-# or
+# ou
 npm run dev
-# or
+# ou
 yarn dev
 ```
 
-3. Open `http://localhost:3001` (or the port configured in your Next app).
+3. Abra `http://localhost:3001` (ou a porta configurada no seu app Next).
 
 ---
 
-## Environment variables
+## Publicações / documentação em MDX
 
-This app expects to fetch data from the IGNIS edge server. You can configure the base URL used by the frontend with an environment variable:
+Este projeto inclui um sistema de posts MDX (veja `utils/mdProcessor.ts`):
 
-```
-NEXT_PUBLIC_IGNIS_BASE_URL=http://localhost:3000
-```
+- Coloque arquivos `.md` ou `.mdx` em `/posts` para que sejam compilados via `next-mdx-remote/rsc` e listados.
 
-If `NEXT_PUBLIC_IGNIS_BASE_URL` is not set, components will fetch from relative endpoints:
+- Frontmatter atualmente suporta:
+- `topic` — string (categoria/assunto)
+- `title` — string (título)
 
-- `/pico_data/latest`
-- `/pico_data/history`
+- Os arquivos são renderizados com componentes MDX personalizados.
 
-> Note: Using `NEXT_PUBLIC_...` lets the value be available in the browser at runtime.
-
----
-
-## MDX-based posts / docs
-
-This project includes an MDX post system (see `utils/mdProcessor.ts`):
-
-- Put `.md` or `.mdx` files into `/posts`.
-- Frontmatter currently supports:
-  - `title` (string)
-  - `topic` (string)
-
-- Files are compiled via `next-mdx-remote/rsc` and rendered with custom MDX components.
-
-Example frontmatter:
+Exemplo de frontmatter:
 
 ```md
 ---
-title: "IGNIS: evaluation notes"
-topic: "research"
+topic: "pesquisa"
+title: "IGNIS: notas de avaliação"
 ---
 
-Content here...
+Conteúdo escrito...
 ```
 
 ---
 
-## Usage — Components & API
+## Uso — Componentes & API
 
-The main exported UI building block is `PicoViewer` (`src/components/posts/PicoViewer.tsx`) which provides a React context and several presentational children.
+O principal bloco de construção da UI é o componente `PicoViewer` (`src/components/pico/PicoViewer.tsx`) que fornece um contexto React e vários componentes de apresentação de dados.
 
-### `PicoViewer` props
-
-```ts
-interface PicoViewerProps {
-	refreshMs?: number; // milliseconds; 0 or negative = no auto-refresh. Default: 12_000
-	showHistory?: boolean; // whether to fetch /pico_data/history or not
-	className?: string; // optional container classname
-	baseUrl?: string; // optional base url to fetch (e.g. "http://localhost:3000")
-	children?: ReactNode;
-}
-```
-
-**Example usage (simple dashboard):**
+**Exemplo de uso (dashboard simples):**
 
 ```tsx
 import PicoViewer, {
@@ -121,22 +90,22 @@ import PicoViewer, {
 export default function DashboardPage() {
 	return (
 		<PicoViewer baseUrl={process.env.NEXT_PUBLIC_IGNIS_BASE_URL}>
-			<Header>IGNIS — Live detection</Header>
+			<Header>IGNIS — Detecção em tempo real</Header>
 
 			<ViewerDashboard>
 				<div>
 					<h3>
-						Status: <DetectionResult ifFire="🔥 FIRE" ifNoFire="— no fire" />
+						Classificação: <DetectionResult ifFire="🔥 FIRE" ifNoFire="— no fire" />
 					</h3>
 					<p>
-						Confidence: <DetectionConfidence />
+						Confiança: <DetectionConfidence />
 					</p>
 					<p>
-						Time: <DetectionTimestamp />
+						Momento da detecção: <DetectionTimestamp />
 					</p>
 				</div>
 
-				{/* optional history */}
+				{/* histórico opcional */}
 				<HistoryTable />
 			</ViewerDashboard>
 		</PicoViewer>
@@ -144,25 +113,26 @@ export default function DashboardPage() {
 }
 ```
 
-### Components exported by `PicoViewer.tsx`
+### Componentes exportados pelo `PicoViewer.tsx`
 
-- `PicoViewer` — context provider & data fetcher.
-- `usePico()` — hook exposing `{ latest, history, loading, error, refreshMs, showHistory, refetch }`.
-- `Header` — small title wrapper.
-- `ViewerDashboard` — fallback UI while loading or error; displays child content when available.
-- `DetectionResult` — shows `"Fire"` / `"Nofire"` / unknown.
-- `DetectionConfidence` — shows numeric confidence as percentage.
-- `DetectionFireScore`, `DetectionNoFireScore` — show model score floats.
-- `DetectionTimestamp` — renders timestamp in locale.
-- `HistoryTable` — simple table of recent readings.
+- `PicoViewer` — provedor de contexto e responsável por buscar dados.
+- `usePico()` — hook que expõe `{ latest, history, loading, error, refreshMs, showHistory, refetch }`.
+- `Header` — wrapper para títulos pequenos.
+- `ViewerDashboard` — UI de fallback enquanto os dados carregam ou em caso de erro; exibe o conteúdo filho quando disponível.
+- `DashboardHeader` — wrapper para títulos pequenos (para o dashboard).
+- `DetectionResult` — mostra `"Fire"` / `"Nofire"` / desconhecido.
+- `DetectionConfidence` — mostra a confiança da inferência.
+- `DetectionFireScore`, `DetectionNoFireScore` — mostram as pontuações do modelo como floats.
+- `DetectionTimestamp` — renderiza o timestamp de acordo com o local.
+- `HistoryTable` — tabela simples com leituras recentes.
 
-All components are intentionally small and composable so you can drop them into your own layout.
+Todos os componentes são intencionalmente pequenos e compostáveis para que você possa inseri-los facilmente no seu próprio layout.
 
 ---
 
-## Example interactive post (in `/posts`)
+## Exemplo de post interativo (em `/posts`)
 
-This repository includes an example MDX post that demonstrates how to use `PicoViewer` directly inside a post page. You can find it in the `posts` folder.
+Este repositório inclui um post MDX de exemplo que demonstra como usar `PicoViewer` diretamente dentro de uma página de post. Você pode encontrá-lo na pasta `posts`.
 
 ```md
 ---
@@ -194,9 +164,9 @@ title: "Resultados da Comunicação"
 
 ---
 
-## Data shape
+## Formato dos dados
 
-Each reading the frontend expects has this structure:
+Cada leitura que o frontend espera tem esta estrutura:
 
 ```json
 {
@@ -208,50 +178,50 @@ Each reading the frontend expects has this structure:
 }
 ```
 
-`timestamp` is required (numeric), other fields may be missing.
+`timestamp` é obrigatório, outros campos podem estar ausentes.
 
 ---
 
-### Example: local testing with the edge server
+### Exemplo: testes locais com o servidor
 
-If you run the companion JSON server locally (default port `3000`):
+Se você executar o seguinte comando com o servidor JSON da IGNIS rodando localmente (porta padrão `3000`):
 
 ```bash
 curl "http://localhost:3000/pico_data?class=Fire&confidence=0.87&fire_score=0.90&nofire_score=0.10"
 ```
 
-Then the frontend (pointing to `http://localhost:3000`) will pick it up on the next refresh.
+O frontend (apontando para `http://localhost:3000`) irá capturar os dados enviados na próxima atualização.
 
 ---
 
-## Known limitations
+## Limitações conhecidas
 
-- Audio autoplay depends on browser policies.
-- The `PicoViewer` fetcher is simple (polling). For many clients or higher throughput, use SSE/WebSocket.
-- No built-in authentication for connecting to the edge JSON server — add middleware if needed.
-
----
-
-## Troubleshooting
-
-- **No detections appearing**: verify `NEXT_PUBLIC_IGNIS_BASE_URL` / `baseUrl` and check browser console network requests for `/pico_data/latest`.
-- **Audio not playing**: ensure `public/alert.wav` exists and that the user has interacted with the page (browsers often require interaction to allow playback).
-- **CORS errors**: if the edge server is remote, enable CORS there or host the frontend and server on same origin.
+- Autoplay de áudio depende das políticas do navegador.
+- O buscador do `PicoViewer` é simples (polling). Para muitos clientes ou maior frequência de envios, use SSE/WebSocket.
+- Não há autenticação embutida para conectar ao servidor JSON — adicione middleware se necessário.
 
 ---
 
-## Contributing
+## Solução de problemas
 
-Contributions welcome! Typical workflow:
-
-1. Fork the repo
-2. Create a feature branch
-3. Open a PR with a description and tests (where applicable)
-
-Please keep API compatibility in mind when changing `PicoViewer` public behavior.
+- **Nenhuma detecção aparecendo**: verifique `NEXT_PUBLIC_IGNIS_BASE_URL` / `baseUrl` e confira as requisições de rede no console do navegador para `/pico_data/latest`.
+- **Áudio não tocando**: verifique se `public/alert.wav` existe (se não existir, precisará adicionar um) e se o usuário interagiu com a página (navegadores frequentemente exigem interação para permitir reprodução).
+- **Erros de CORS**: se o servidor JSON estiver rodando em remoto, habilite CORS lá ou hospede o frontend e o servidor na mesma origem.
 
 ---
 
-## Acknowledgements
+## Contribuindo
 
-This platform is part of **I.G.N.I.S.** (Inteligência para Gerenciamento e Neutralização de Incêndios Sistematizada): an edge AI project to detect early-stage fires in remote areas using computer vision on edge devices (ESP32 / optical cameras) so that authorities can respond faster. The platform is intended to be easy to use, supporting that mission.
+Contribuições são bem-vindas! Fluxo típico:
+
+1. Faça um fork do repositório
+2. Crie um branch de feature
+3. Abra um PR com uma descrição e testes (quando aplicáveis)
+
+Por favor, mantenha a compatibilidade da API em mente ao alterar o comportamento público do `PicoViewer`.
+
+---
+
+## Note e adote
+
+Esta plataforma faz parte do **I.G.N.I.S.** (Inteligência para Gerenciamento e Neutralização de Incêndios Sistematizada): um projeto que usa IA para detectar incêndios em estágio inicial usando visão computacional em dispositivos portáteis (ESP32 / câmeras ópticas), permitindo que as autoridades respondam mais rápido. A plataforma foi projetada para ser de fácil uso, apoiando esse objetivo.
