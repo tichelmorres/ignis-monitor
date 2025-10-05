@@ -170,11 +170,11 @@ Cada leitura que o frontend espera tem esta estrutura:
 
 ```json
 {
-	"timestamp": 1690000000000, // ms since epoch
-	"class": "Fire", // "Fire", "Nofire", or other string
-	"confidence": 0.92, // 0..1
-	"fire_score": 0.95, // model score
-	"nofire_score": 0.05 // model score
+	"timestamp": 1690000000000, // Date.now em ms
+	"class": "Fire", // "Fire", "Nofire" (case-sensitive)
+	"confidence": 0.92, // 0 ... 1
+	"fire_score": 0.95, // pontuação dada pelo modelo
+	"nofire_score": 0.05 // pontuação dada pelo modelo
 }
 ```
 

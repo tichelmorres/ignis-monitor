@@ -170,7 +170,7 @@ Each reading the frontend expects has this structure:
 {
 	"timestamp": 1690000000000, // ms since epoch
 	"class": "Fire", // "Fire", "Nofire" (case-sensitive)
-	"confidence": 0.92, // 0..1
+	"confidence": 0.92, // 0 ... 1
 	"fire_score": 0.95, // model score
 	"nofire_score": 0.05 // model score
 }
