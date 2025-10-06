@@ -173,15 +173,6 @@
 	border-bottom-color: black;
 }
 
-.content img {
-	max-width: 100%;
-	height: auto;
-	margin: 1.5rem auto;
-	display: block;
-	border-radius: 4px;
-	border: 1px solid black;
-}
-
 .content hr {
 	margin: 2rem 0;
 	border: none;

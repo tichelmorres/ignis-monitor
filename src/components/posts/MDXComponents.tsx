@@ -9,7 +9,9 @@ import {
 	HistoryTable,
 	PicoViewer,
 	ViewerDashboard,
-} from "./PicoViewer";
+} from "../pico/PicoViewer";
+
+import { CoolImage } from "./CoolImage";
 
 const MDXComponents = {
 	PicoViewer,
@@ -22,6 +24,7 @@ const MDXComponents = {
 	DetectionNoFireScore,
 	DetectionTimestamp,
 	HistoryTable,
+	CoolImage,
 };
 
 export default MDXComponents;
