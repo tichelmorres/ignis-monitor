@@ -200,6 +200,17 @@
 	color: white;
 }
 
+.backButtonContainer {
+	position: absolute;
+	top: 2rem;
+	left: -4rem;
+	z-index: 10;
+}
+
+.postContainer {
+	position: relative;
+}
+
 @media (max-width: 1024px) {
 	.contentWrapper {
 		grid-template-columns: 1fr 280px;
@@ -275,5 +286,12 @@
 	.contentWrapper {
 		grid-template-columns: 1fr;
 		gap: 2rem;
+	}
+}
+
+@media (max-width: 768px) {
+	.backButtonContainer {
+		top: 1rem;
+		left: 1rem;
 	}
 }

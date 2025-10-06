@@ -1,0 +1,65 @@
+{
+	"page": {
+		"introduction_title": "Introduction – AI in Wildfire Prevention Action",
+		"introduction_paragraph1": "News about wildfires and forest fires have been occupying Brazilian media outlets with alarming frequency. From localized occurrences to large-scale catastrophes, these events have been compromising significant portions of the Amazon and threatening fundamental elements of biodiversity.",
+		"introduction_paragraph2": "Although it has become part of the news routine, this is not mere coincidence. Studies and reports highlight that the growth of arson-caused fires in the Amazon region impacts both climate balance and public health indicators. This scenario reveals the combination of human and climatic factors that intensify the severity of fires.",
+		"health_impacts_title": "Public Health Impacts of Wildfires",
+		"health_impacts_paragraph": "The health effects are alarming, especially in vulnerable populations. Research shows that during severe droughts in the Amazon, hospitalizations for respiratory diseases in children under five years old increased between 1.2% and 267%. The determining factor is the particulate matter from wildfires, which penetrates deeply into the lungs and causes serious damage.",
+		"health_impacts_list": [
+			"Inhaled particulate matter reaches up to 400 mg/m³ in severe events",
+			"Serious respiratory damage in children and vulnerable populations",
+			"Scientific evidence reinforces the urgency of preventive measures"
+		],
+		"trends_title": "Growing Trends in Fire Outbreaks",
+		"trends_paragraph": "INPE data reveals a concerning trend in the increase of fire outbreaks in recent decades. Between 2000 and 2007, a pattern of increase repeated itself, and since 2024 the numbers have been rising again. Studies also show that in the Maranhão Cerrado, more than 77% of fires are concentrated between August and October.",
+		"trends_contributions": [
+			{
+				"title": "Critical Cases",
+				"text": "Fires in the Taim Ecological Station devastated more than 40% of the unit during years of extreme drought."
+			},
+			{
+				"title": "Temporal Distribution",
+				"text": "77.23% of fire outbreaks in the Cerrado are concentrated in just three months."
+			}
+		],
+		"climate_conditions_title": "Favorable Climate Conditions",
+		"climate_conditions_paragraph": "Climate thresholds such as low precipitation, relative humidity below 70%, and temperatures above 34°C drastically increase the probability of ignition. With climate change, such conditions become more frequent, intensifying natural ignitions and the spread of anthropogenic fires.",
+		"climate_conditions_list": [
+			"Monthly precipitation less than 100 mm",
+			"Fewer than 5 consecutive rainy days",
+			"Relative humidity < 70%",
+			"Temperatures > 34°C"
+		],
+		"technology_title": "The Integration of Technological Context",
+		"technology_paragraph": "Given the worsening risks, it becomes essential to adopt innovative technological solutions. Thus emerges the I.G.N.I.S. project, which proposes the implementation of a system based on computer vision and artificial intelligence for early detection of fire outbreaks.",
+		"technology_contributions": [
+			{
+				"title": "Proof of Concept",
+				"text": "Integration of AI models with embedded systems for operation in real scenarios."
+			},
+			{
+				"title": "Early Detection",
+				"text": "System designed to identify fires in their initial stages."
+			}
+		],
+		"justification_title": "Justification: Flaws in Current Methods",
+		"justification_paragraph": "Conventional methods such as surveillance towers and satellites show low accuracy and delays in identification. Cases like ESEC Taim reveal discrepancies of thousands of hectares between the reported area and the effectively burned area.",
+		"justification_list": [
+			"Late detection increases costs and complexity",
+			"Satellite monitoring fails with cloud cover",
+			"Observation towers depend on human action"
+		],
+		"practical_sense_title": "Why Does I.G.N.I.S. Make Practical Sense?",
+		"practical_sense_paragraph": "Unlike purely theoretical solutions, I.G.N.I.S. was designed to deal with infrastructure limitations and adverse environmental conditions. The use of embedded systems allows autonomous and continuous operation.",
+		"practical_sense_contributions": [
+			{
+				"title": "Socio-environmental Protection",
+				"text": "Communities, farmers, and traditional peoples benefit from early detection."
+			},
+			{
+				"title": "UN Sustainable Development Goals",
+				"text": "Direct alignment with health, climate, and terrestrial life objectives."
+			}
+		]
+	}
+}

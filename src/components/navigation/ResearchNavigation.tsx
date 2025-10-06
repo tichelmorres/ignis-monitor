@@ -6,21 +6,30 @@ interface ResearchNavigationProps {
 	posts: PostMetadata[];
 	currentSlug?: string;
 	className?: string;
+	currentLang: string;
 }
 
 export default function ResearchNavigation({
 	posts,
 	currentSlug,
 	className = "",
+	currentLang,
 }: ResearchNavigationProps) {
+	const navTitles: Record<string, string> = {
+		en: "Research Documentation",
+		ptBR: "Documentação da Pesquisa",
+	};
+
 	return (
 		<aside className={`${styles.sidebar} ${className}`}>
 			<nav
 				className={styles.navigation}
 				role="navigation"
-				aria-label="Research Documentation"
+				aria-label={navTitles[currentLang] || "Research Documentation"}
 			>
-				<h2 className={styles.navTitle}>Documentação da Pesquisa</h2>
+				<h2 className={styles.navTitle}>
+					{navTitles[currentLang] || "Research Documentation"}
+				</h2>
 
 				{posts.length > 0 && (
 					<ul className={styles.navList}>
@@ -35,55 +44,29 @@ export default function ResearchNavigation({
 											aria-current="page"
 										>
 											<div className={styles.navMeta}>
-												<span
-													className={styles.navNumber}
-												>
-													{String(index + 1).padStart(
-														2,
-														"0",
-													)}
+												<span className={styles.navNumber}>
+													{String(index + 1).padStart(2, "0")}
 												</span>
 												{post.topic && (
-													<span
-														className={
-															styles.navtopic
-														}
-													>
-														{post.topic}
-													</span>
+													<span className={styles.navtopic}>{post.topic}</span>
 												)}
 											</div>
-											<h3 className={styles.navPostTitle}>
-												{post.title}
-											</h3>
+											<h3 className={styles.navPostTitle}>{post.title}</h3>
 										</div>
 									) : (
 										<Link
-											href={`/${post.slug}`}
+											href={`/${currentLang}/${post.slug}`}
 											className={styles.navLink}
 										>
 											<div className={styles.navMeta}>
-												<span
-													className={styles.navNumber}
-												>
-													{String(index + 1).padStart(
-														2,
-														"0",
-													)}
+												<span className={styles.navNumber}>
+													{String(index + 1).padStart(2, "0")}
 												</span>
 												{post.topic && (
-													<span
-														className={
-															styles.navtopic
-														}
-													>
-														{post.topic}
-													</span>
+													<span className={styles.navtopic}>{post.topic}</span>
 												)}
 											</div>
-											<h3 className={styles.navPostTitle}>
-												{post.title}
-											</h3>
+											<h3 className={styles.navPostTitle}>{post.title}</h3>
 										</Link>
 									)}
 								</li>

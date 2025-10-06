@@ -1,0 +1,65 @@
+{
+	"page": {
+		"introduction_title": "Introdução – I.A. na ação contra queimadas",
+		"introduction_paragraph1": "Notícias sobre queimadas e incêndios florestais têm ocupado os veículos de comunicação brasileiros com frequência alarmante. De ocorrências localizadas até catástrofes de grande magnitude, os eventos vêm comprometendo porções significativas da Amazônia e ameaçando elementos fundamentais da biodiversidade.",
+		"introduction_paragraph2": "Embora faça parte da rotina noticiosa, não se trata de mero acaso. Estudos e reportagens destacam que o crescimento dos incêndios de origem criminosa na região amazônica impacta tanto o equilíbrio climático quanto indicadores de saúde pública. Esse cenário revela a combinação de fatores humanos e climáticos que intensificam a gravidade dos incêndios.",
+		"health_impacts_title": "Impactos das queimadas na saúde pública",
+		"health_impacts_paragraph": "Os efeitos na saúde são alarmantes, sobretudo em populações vulneráveis. Pesquisas demonstram que, durante secas severas na Amazônia, hospitalizações por doenças respiratórias em crianças menores de cinco anos aumentaram entre 1,2% e 267%. O fator determinante é o material particulado oriundo das queimadas, que penetra profundamente nos pulmões e causa sérios danos.",
+		"health_impacts_list": [
+			"Material particulado inalado atinge até 400 mg/m³ em eventos severos",
+			"Danos respiratórios graves em crianças e populações vulneráveis",
+			"Evidências científicas reforçam urgência de medidas preventivas"
+		],
+		"trends_title": "Tendências crescentes dos focos de incêndio",
+		"trends_paragraph": "Dados do INPE revelam uma tendência preocupante no aumento dos focos de incêndio nas últimas décadas. Entre 2000 e 2007, repetiu-se um padrão de alta, e desde 2024 o número voltou a crescer. Estudos também mostram que no Cerrado maranhense mais de 77% das queimadas se concentram entre agosto e outubro.",
+		"trends_contributions": [
+			{
+				"title": "Casos críticos",
+				"text": "Incêndios na Estação Ecológica do Taim devastaram mais de 40% da unidade em anos de seca extrema."
+			},
+			{
+				"title": "Distribuição temporal",
+				"text": "77,23% dos focos de incêndio no Cerrado concentram-se em apenas três meses."
+			}
+		],
+		"climate_conditions_title": "Condições climáticas propícias",
+		"climate_conditions_paragraph": "Limiares climáticos como baixa precipitação, umidade relativa abaixo de 70% e temperaturas acima de 34°C aumentam drasticamente a probabilidade de ignição. Com as mudanças climáticas, tais condições tornam-se mais frequentes, intensificando ignições naturais e a propagação de incêndios antropogênicos.",
+		"climate_conditions_list": [
+			"Precipitação mensal inferior a 100 mm",
+			"Menos de 5 dias consecutivos de chuva",
+			"Umidade relativa < 70%",
+			"Temperaturas > 34°C"
+		],
+		"technology_title": "A inserção do contexto tecnológico",
+		"technology_paragraph": "Diante do agravamento dos riscos, torna-se essencial adotar soluções tecnológicas inovadoras. Surge assim o projeto I.G.N.I.S., que propõe a implementação de um sistema baseado em visão computacional e inteligência artificial para detecção precoce de focos.",
+		"technology_contributions": [
+			{
+				"title": "Prova de conceito",
+				"text": "Integração de modelos de IA com sistemas embarcados para operação em cenários reais."
+			},
+			{
+				"title": "Detecção precoce",
+				"text": "Sistema projetado para identificar incêndios ainda nos estágios iniciais."
+			}
+		],
+		"justification_title": "Justificativa: falhas nos métodos atuais",
+		"justification_paragraph": "Métodos convencionais como torres de vigilância e satélites apresentam baixa precisão e atrasos na identificação. Casos como o da ESEC Taim revelam discrepâncias de milhares de hectares entre a área noticiada e a área efetivamente queimada.",
+		"justification_list": [
+			"Detecção tardia aumenta custos e complexidade",
+			"Monitoramento por satélite falha com nuvens",
+			"Torres de observação dependem de ação humana"
+		],
+		"practical_sense_title": "Por que a I.G.N.I.S. faz sentido prático?",
+		"practical_sense_paragraph": "Diferente de soluções puramente teóricas, a I.G.N.I.S. foi desenhada para lidar com limitações de infraestrutura e condições ambientais adversas. O uso de sistemas embarcados permite operação autônoma e contínua.",
+		"practical_sense_contributions": [
+			{
+				"title": "Proteção socioambiental",
+				"text": "Comunidades, agricultores e povos tradicionais são beneficiados pela detecção precoce."
+			},
+			{
+				"title": "ODS da ONU",
+				"text": "Alinhamento direto com os objetivos de saúde, clima e vida terrestre."
+			}
+		]
+	}
+}

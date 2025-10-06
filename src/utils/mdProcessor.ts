@@ -9,21 +9,38 @@ import remarkGfm from "remark-gfm";
 import { Post, PostMetadata } from "../types/post";
 import slugify from "./slugify";
 
-const postsDirectory = path.join(process.cwd(), "posts");
+const postDirectories: Record<string, string> = {
+	en: "posts-en",
+	ptBR: "posts-ptBR",
+};
 
-let fileCache: string[] | null = null;
-
-function getPostFiles(): string[] {
-	if (!fileCache) {
-		fileCache = fs
-			.readdirSync(postsDirectory)
-			.filter((file) => file.endsWith(".md") || file.endsWith(".mdx"));
+function getPostsDirectory(lang: string): string {
+	const directory = postDirectories[lang];
+	if (!directory) {
+		throw new Error(`Unsupported language: ${lang}`);
 	}
-	return fileCache;
+	return path.join(process.cwd(), directory);
 }
 
-function findPostFile(urlSlug: string): string | null {
-	const files = getPostFiles();
+const fileCache: Record<string, string[]> = {};
+
+function getPostFiles(lang: string): string[] {
+	if (!fileCache[lang]) {
+		const postsDirectory = getPostsDirectory(lang);
+		try {
+			fileCache[lang] = fs
+				.readdirSync(postsDirectory)
+				.filter((file) => file.endsWith(".md") || file.endsWith(".mdx"));
+		} catch (error) {
+			console.error(`Error reading directory for language ${lang}:`, error);
+			fileCache[lang] = [];
+		}
+	}
+	return fileCache[lang];
+}
+
+function findPostFile(lang: string, urlSlug: string): string | null {
+	const files = getPostFiles(lang);
 
 	for (const filename of files) {
 		const fileSlug = slugify(filename.replace(/\.(mdx|md)$/, ""));
@@ -35,14 +52,18 @@ function findPostFile(urlSlug: string): string | null {
 	return null;
 }
 
-export async function getPostData(urlSlug: string): Promise<Post> {
-	const filename = findPostFile(urlSlug);
+export async function getPostData(
+	lang: string,
+	urlSlug: string,
+): Promise<Post> {
+	const filename = findPostFile(lang, urlSlug);
 
 	if (!filename) {
 		notFound();
 	}
 
 	try {
+		const postsDirectory = getPostsDirectory(lang);
 		const fullPath = path.join(postsDirectory, filename);
 		const fileContents = fs.readFileSync(fullPath, "utf8");
 		const { data: frontmatter, content: rawContent } = matter(fileContents);
@@ -70,16 +91,20 @@ export async function getPostData(urlSlug: string): Promise<Post> {
 			...metadata,
 		};
 	} catch (error) {
-		console.error(`Error processing post "${urlSlug}":`, error);
+		console.error(
+			`Error processing post "${urlSlug}" for language "${lang}":`,
+			error,
+		);
 		notFound();
 	}
 }
 
-export function getPostsMetadata(): PostMetadata[] {
-	const files = getPostFiles();
+export function getPostsMetadata(lang: string): PostMetadata[] {
+	const files = getPostFiles(lang);
 
 	return files.map((filename) => {
 		const urlSlug = slugify(filename.replace(/\.(mdx|md)$/, ""));
+		const postsDirectory = getPostsDirectory(lang);
 		const fullPath = path.join(postsDirectory, filename);
 		const fileContents = fs.readFileSync(fullPath, "utf8");
 		const { data: frontmatter } = matter(fileContents);
