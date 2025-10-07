@@ -5,16 +5,27 @@
 
 ---
 
+## 🌍 Suporte Multilíngue
+
+Esta aplicação suporta **Português Brasileiro** e **Inglês** com detecção automática de idioma e salvamento de preferências do usuário.
+
+### Funcionalidades de Idioma:
+- **Detecção automática**: Detecção do idioma do navegador com armazenamento de preferência por cookies
+- **Seletor de Idioma**: Alternância fácil entre Português e Inglês
+- **Separação de Conteúdo**: Posts organizados em diretórios específicos por idioma (`posts-ptBR/` e `posts-en/`)
+- **Internacionalização Completa**: Todos os elementos de UI, navegação e páginas de erro são traduzidos
+
+---
+
 ## O que este repositório contém
 
-- Uma UI Next.js + React + TypeScript que consome o servidor JSON de borda do IGNIS.
-
+- Uma UI Next.js + React + TypeScript que consome o servidor JSON de borda do IGNIS
 - Componentes reutilizáveis (`PicoViewer` e subsequentes) que:
   - buscam e expõem os dados mais recentes / histórico do Pico,
   - reproduzem um som de alerta quando novas detecções chegam,
-  - exibem a classe da detecção, confiança e pontuações.
-
-- Sistema de posts baseado em MDX para documentação e pesquisa.
+  - exibem a classe da detecção, confiança e pontuações
+- Sistema de posts baseado em MDX com conteúdo específico por idioma
+- Design responsivo com experiência consistente entre idiomas
 
 ---
 
@@ -48,15 +59,19 @@ yarn dev
 
 ## Publicações / documentação em MDX
 
-Este projeto inclui um sistema de posts MDX (veja `utils/mdProcessor.ts`):
+Este projeto inclui um sistema de posts MDX com suporte multilíngue completo:
 
-- Coloque arquivos `.md` ou `.mdx` em `/posts` para que sejam compilados via `next-mdx-remote/rsc` e listados.
+- **Posts em Português**: /posts-ptBR/ - Todo o conteúdo em Português Brasileiro
 
-- Frontmatter atualmente suporta:
-- `topic` — string (categoria/assunto)
-- `title` — string (título)
+- **Posts em Inglês**: /posts-en/ - Todo o conteúdo em Inglês
 
-- Os arquivos são renderizados com componentes MDX personalizados.
+Coloque seus arquivos `.md` ou `.mdx` no diretório de idioma apropriado.
+
+**O frontmatter atualmente suporta**:
+	- `topic` (string) <-
+  - `title` (string) <-
+
+Os arquivos são compilados via `next-mdx-remote/rsc` e renderizados com componentes MDX personalizados.
 
 Exemplo de frontmatter:
 

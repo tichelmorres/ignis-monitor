@@ -5,15 +5,27 @@
 
 ---
 
+## 🌍 Multilingual Support
+
+This application supports both **Brazilian Portuguese** and **English** with automatic language detection and user preference saving.
+
+### Language Features:
+- **Auto-detection**: Browser language detection with cookie-based preference storage
+- **Language Switcher**: Easy toggle between Portuguese and English
+- **Content Separation**: Posts are organized in language-specific directories (`posts-ptBR/` and `posts-en/`)
+- **Full Internationalization**: All UI elements, navigation, and error pages are translated
+
+---
+
 ## What this repo contains
 
-- A Next.js + React + TypeScript UI that consumes the IGNIS JSON edge server.
+- A Next.js + React + TypeScript UI that consumes the IGNIS JSON edge server
 - Reusable components (`PicoViewer` and children) that:
   - fetch and expose latest / historical Pico data,
   - play an alert sound when new detections arrive,
-  - display detection class, confidence, and scores.
-
-- MDX-based post system for research / documentation pages.
+  - display detection class, confidence, and scores
+- MDX-based post system with language-specific content
+- Responsive design with consistent cross-language experience
 
 ---
 
@@ -47,14 +59,19 @@ yarn dev
 
 ## MDX-based posts / docs
 
-This project includes an MDX post system (see `utils/mdProcessor.ts`):
+This project includes an MDX post system with full multilingual support:
 
-- Put `.md` or `.mdx` files into `/posts`.
-- Frontmatter currently supports:
+- **Portuguese posts**: /posts-ptBR/ - All content in Brazilian Portuguese
+
+- **English posts**: /posts-en/ - All content in English
+
+Place your `.md` or `.mdx` files in the appropriate language directory.
+
+**Frontmatter currently supports**:
   - `topic` (string)
   - `title` (string)
 
-- Files are compiled via `next-mdx-remote/rsc` and rendered with custom MDX components.
+Files are compiled via `next-mdx-remote/rsc` and rendered with custom MDX components.
 
 Example frontmatter:
 
