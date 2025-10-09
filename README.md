@@ -1,7 +1,7 @@
 # I.G.N.I.S. — Aplicação web de monitoramento
 
 > **See the fire before it spreads...**
-> Este repositório é o frontend de monitoramento do **IGNIS** — um sistema de detecção de incêndio com IA que encaminha resultados de inferência de um microcontrolador Pico (Raspberry Pico W / Pico 2W) para um pequeno servidor JSON. A aplicação de monitoramento fornece um painel compacto em tempo real, visão de histórico e componentes que você pode incorporar ao seu próprio site Next.js para observar detecções e receber alertas.
+> Este repositório é o frontend de monitoramento da **I.G.N.I.S.** — um sistema de detecção de incêndio com IA que encaminha resultados de inferência de um microcontrolador Pico (Raspberry Pico W / Pico 2W) para um pequeno servidor JSON. A aplicação de monitoramento fornece um painel compacto em tempo real, visão de histórico e componentes que você pode incorporar ao seu próprio site Next.js para observar detecções e receber alertas.
 
 ---
 
@@ -19,7 +19,7 @@ Esta aplicação suporta **Português Brasileiro** e **Inglês** com detecção 
 
 ## O que este repositório contém
 
-- Uma UI Next.js + React + TypeScript que consome o servidor JSON de borda do IGNIS
+- Uma UI Next.js + React + TypeScript que consome o servidor JSON de borda do I.G.N.I.S.
 - Componentes reutilizáveis (`PicoViewer` e subsequentes) que:
   - buscam e expõem os dados mais recentes / histórico do Pico,
   - reproduzem um som de alerta quando novas detecções chegam,
@@ -78,7 +78,7 @@ Exemplo de frontmatter:
 ```md
 ---
 topic: "pesquisa"
-title: "IGNIS: notas de avaliação"
+title: "I.G.N.I.S.: notas de avaliação"
 ---
 
 Conteúdo escrito...
@@ -105,7 +105,7 @@ import PicoViewer, {
 export default function DashboardPage() {
 	return (
 		<PicoViewer baseUrl={process.env.NEXT_PUBLIC_IGNIS_BASE_URL}>
-			<Header>IGNIS — Detecção em tempo real</Header>
+			<Header>I.G.N.I.S. — Detecção em tempo real</Header>
 
 			<ViewerDashboard>
 				<div>
@@ -199,13 +199,13 @@ Cada leitura que o frontend espera tem esta estrutura:
 
 ### Exemplo: testes locais com o servidor
 
-Se você executar o seguinte comando com o servidor JSON da IGNIS rodando localmente (porta padrão `3000`):
+Se você executar o seguinte comando com o servidor JSON da I.G.N.I.S. rodando localmente (porta padrão `3000`):
 
 ```bash
 curl "http://localhost:3000/pico_data?class=Fire&confidence=0.87&fire_score=0.90&nofire_score=0.10"
 ```
 
-O frontend (apontando para `http://localhost:3000`) irá capturar os dados enviados na próxima atualização.
+O frontend (apontando para `http://localhost:3000`) irá capturar os dados enviados na próxima atualização. Cada atualização vai tocar um alarme que facilita saber quando novos dados chegam. Se o frontend atualizar e não houver novos dados para exibir, o alerta não soará.
 
 ---
 

@@ -3,11 +3,14 @@ import PageHeader from "@/components/navigation/PageHeader";
 import ResearchNavigation from "@/components/navigation/ResearchNavigation";
 import { getDictionary } from "@/dictionaries";
 import { getPostsMetadata } from "@/utils/mdProcessor";
+import { notFound } from "next/navigation";
 import styles from "./page.module.css";
 
 interface PageParams {
 	lang: string;
 }
+
+const supportedLanguages = ["en", "ptBR"];
 
 export default async function Home({
 	params,
@@ -15,6 +18,13 @@ export default async function Home({
 	params: Promise<PageParams>;
 }) {
 	const { lang } = await params;
+
+	// Validate language parameter before proceeding
+	// This is useful when the middleware fails for whatever reason
+	if (!supportedLanguages.includes(lang)) {
+		notFound();
+	}
+
 	const dict = await getDictionary(lang);
 	const posts = getPostsMetadata(lang);
 

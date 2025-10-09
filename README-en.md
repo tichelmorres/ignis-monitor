@@ -1,7 +1,7 @@
 # I.G.N.I.S. — Monitoring web application
 
 > **See the fire before it spreads...**
-> This repository is the monitoring frontend for **IGNIS** — an edge AI fire-detection system that forwards Pico (Raspberry Pico W / Pico 2W) inference results to a small JSON edge server. The monitoring app provides a compact, real-time dashboard, history view, and components you can drop into your own Next.js site to observe detections and get audible alerts.
+> This repository is the monitoring frontend for **I.G.N.I.S.** — an edge AI fire-detection system that forwards Pico (Raspberry Pico W / Pico 2W) inference results to a small JSON edge server. The monitoring app provides a compact, real-time dashboard, history view, and components you can drop into your own Next.js site to observe detections and get audible alerts.
 
 ---
 
@@ -19,7 +19,7 @@ This application supports both **Brazilian Portuguese** and **English** with aut
 
 ## What this repo contains
 
-- A Next.js + React + TypeScript UI that consumes the IGNIS JSON edge server
+- A Next.js + React + TypeScript UI that consumes the I.G.N.I.S. JSON edge server
 - Reusable components (`PicoViewer` and children) that:
   - fetch and expose latest / historical Pico data,
   - play an alert sound when new detections arrive,
@@ -77,7 +77,7 @@ Example frontmatter:
 
 ```md
 ---
-title: "IGNIS: evaluation notes"
+title: "I.G.N.I.S.: evaluation notes"
 topic: "research"
 ---
 
@@ -105,7 +105,7 @@ import PicoViewer, {
 export default function DashboardPage() {
 	return (
 		<PicoViewer baseUrl={process.env.NEXT_PUBLIC_IGNIS_BASE_URL}>
-			<Header>IGNIS — Live detection</Header>
+			<Header>I.G.N.I.S. — Live detection</Header>
 
 			<ViewerDashboard>
 				<div>
